@@ -33,6 +33,7 @@ window.addEventListener('load', e => {
     const parser = new Parser(dieRollerLog);
 
     const submitCommand = function () {
+        if(commandElement.value == '') return;
         dieRollerLog('> ' + commandElement.value);
         const parseResult = parser.parseCommand(commandElement.value.replaceAll(/\s/g, ''));
         switch (parser.parseErr)

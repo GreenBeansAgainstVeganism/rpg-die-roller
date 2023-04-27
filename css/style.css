@@ -67,6 +67,30 @@ main > div {
     flex: 1;
 }
 
+main button {
+    background-color: white;
+    border-image: url('../assets/button_border.png');
+    border-image-width: 4px;
+    border-image-slice: 16;
+    border-image-outset: 0 4px 4px 0;
+    position: relative;
+    left: -4px;
+    top: -4px;
+    margin: 0;
+}
+
+main button:hover {
+    border-image-source: url('../assets/button_border_highlight.png');
+    box-shadow: 4px 4px 6px #ffd580;
+}
+
+main button:active {
+    left: 0;
+    top: 0;
+    border: 2px solid #c6606f;
+    box-shadow: none;
+}
+
 footer {
     padding: 1rem;
 }
