@@ -1,0 +1,76 @@
+body {
+    display: flex;
+    flex-flow: column nowrap;
+    max-height: 100vh;
+    height: 100vh;
+    margin: 0;
+    background-color: black;
+    background-image: url('../assets/backdrop.webp');
+    background-size: cover;
+    background-position-x: center;
+    color: white;
+}
+
+* {
+    font-family: 'Labrada', Georgia, 'Times New Roman', Times, serif;
+}
+
+header {
+    padding: 1rem;
+}
+
+h1 {
+    text-align: center;
+    margin: 0 auto 0.5rem auto;
+}
+
+@media screen and (max-width: 480px) {
+    h1 {
+        width: 7em;
+    }
+}
+
+nav ul {
+    margin: auto;
+    width: fit-content;
+    padding-inline: 1em;
+    list-style: none;
+    display: flex;
+    flex-flow: row nowrap;
+    border-bottom: 2px solid white;
+}
+
+nav ul li button {
+    padding: 0.7rem 2rem;
+    background-color: transparent;
+    border: none;
+    transition: all 0.2s;
+    color: white;
+}
+
+nav ul li button:hover {
+    background-color: #ffffff44;
+}
+
+main {
+    flex-grow: 1;
+    background-color: white;
+    box-shadow: 0 0 0.5rem inset #2c0d0888;
+    color: black;
+    border-radius: 1rem;
+    display: flex;
+    flex-flow: row nowrap;
+    padding: 1rem;
+}
+
+main > div {
+    flex: 1;
+}
+
+footer {
+    padding: 1rem;
+}
+
+footer p {
+    margin: 0;
+}

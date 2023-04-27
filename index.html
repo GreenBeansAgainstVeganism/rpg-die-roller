@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Labrada">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/die_roller.css">
+    <script type="module" src="scripts/script.js"></script>
+    <script type="module" src="scripts/parser.js"></script>
+    <title>RPG Die Roller</title>
+</head>
+<body>
+    <header>
+        <h1>The Ultimate RPG Die Roller</h1>
+        <nav>
+            <ul>
+                <li><button>Die Roller</button></li>
+                <li><button>Profiles</button></li>
+                <li><button>Help</button></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div id="die-roller-tab">
+            <div id="properties-panel">
+
+            </div>
+            <div id="edit-panel">
+
+            </div>
+            <div id="log-panel">
+                <div id="log-box">
+                    <div id="log">
+                        <div id="log-text"></div>
+                    </div>
+                </div>
+                <div id="log-controls">
+                    <input type="text" name="command-entry" id="command-entry" placeholder="ex: D20, 3d6, d8+2">
+                    <button id="log-submit">Submit</button>
+                    <button id="log-clear">Clear</button>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p>
+            &copy;<script>document.write(new Date().getFullYear());</script> Sage Cook
+        </p>
+    </footer>
+</body>
+</html>

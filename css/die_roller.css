@@ -1,0 +1,101 @@
+#die-roller-tab {
+    display: grid;
+    grid-template-columns: auto max(30%, 300px);
+    grid-template-rows: 70% auto;
+    gap: 1rem;
+}
+
+#properties-panel {
+    grid-row: 1;
+    grid-column: 1;
+    border: 2px solid black;
+    border-radius: 2px;
+}
+
+#log-panel {
+    grid-row: 1 / 3;
+    grid-column: 2;
+    border: 2px solid black;
+    border-radius: 2px;
+    display: flex;
+    flex-flow: column nowrap;
+    padding: 0.5rem;
+    gap: 0.5rem;
+}
+
+#edit-panel {
+    grid-row: 2;
+    grid-column: 1;
+    border: 2px solid black;
+    border-radius: 2px;
+}
+
+#log-box {
+    flex: 1;
+    position: relative;
+}
+
+#log {
+    position: absolute;
+    max-height: 100%;
+    height: 100%;
+    width: 100%;
+    display: block;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+#log-text {
+    min-height: 100%;
+    display: flex;
+    align-items: end;
+    white-space: pre-wrap;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+#log-controls {
+    display: grid;
+    grid-template-columns: 1fr min-content min-content;
+    grid-auto-flow: column;
+    gap: 0.2rem;
+}
+
+#command-entry {
+    resize: none;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12pt;
+    outline: none;
+    border: 2px solid black;
+    border-radius: 2px;
+}
+
+@media screen and (max-width: 1150px) {
+
+    #log-controls {
+        grid-template-columns: auto auto;
+    }
+
+    #command-entry {
+        grid-area: 1 / 1 / 2 / 3;
+    }
+
+    #log-submit {
+        grid-area: 2 / 1;
+    }
+
+    #log-clear {
+        grid-area: 2 / 2;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    #die-roller-tab {
+        grid-template-columns: auto;
+        grid-template-rows: auto 20% auto;
+    }
+
+    #log-panel {
+        grid-row: 3;
+        grid-column: 1;
+    }
+}
