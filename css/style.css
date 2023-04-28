@@ -22,6 +22,7 @@ header {
 h1 {
     text-align: center;
     margin: 0 auto 0.5rem auto;
+    text-shadow: 0 0 0.4em #c6606f;
 }
 
 @media screen and (max-width: 480px) {
@@ -44,6 +45,7 @@ nav ul li button {
     padding: 0.7rem 2rem;
     background-color: transparent;
     border: none;
+    border-radius: 4px 4px 0 0;
     transition: all 0.2s;
     color: white;
 }
@@ -77,11 +79,13 @@ main button {
     left: -4px;
     top: -4px;
     margin: 0;
+    user-select: none;
 }
 
 main button:hover {
     border-image-source: url('../assets/button_border_highlight.png');
     box-shadow: 4px 4px 6px #ffd580;
+    background-color: #ffeac1;
 }
 
 main button:active {

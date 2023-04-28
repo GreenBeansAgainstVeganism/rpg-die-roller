@@ -5,6 +5,9 @@ const LOGHISTORYLENGTH = 100;
 /**list of strings currently in the log. use dieRollerLog() to change*/
 let log_lines = [];
 
+/**list of user defined elements that are accessible via <> references in dicescript */
+let elements = [];
+
 window.addEventListener('load', e => {
     const logElement = document.getElementById('log-text');
     const logScreenElement = document.getElementById('log');
@@ -24,18 +27,42 @@ window.addEventListener('load', e => {
         logScreenElement.scrollTop = logScreenElement.scrollHeight;
     }
     
+    /**
+     * Clear the log
+     */
     const dieRollerLogClear = function () {
         log_lines = ['~~ log cleared ~~'];
         logElement.innerText = '~~ log cleared ~~';
         logScreenElement.scrollTop = logScreenElement.scrollHeight;
     }
 
+    /**
+     * Represents an element in dicescript, whose value/formula can be referenced by other scripts. This is an immutable object.
+     */
+    class dsElement {
+        constructor (name, code, category)
+        {
+            this.name = name;
+            this.code = code;
+            this.category = category;
+            Object.freeze(this);
+        }
+    
+        run () {
+            executeCommand(this.code);
+        }
+    }
+
     const parser = new Parser(dieRollerLog);
 
-    const submitCommand = function () {
-        if(commandElement.value == '') return;
-        dieRollerLog('> ' + commandElement.value);
-        const parseResult = parser.parseCommand(commandElement.value.replaceAll(/\s/g, ''));
+    /**
+     * Runs a command and outputs to log
+     * @param {String} code the dicescript command to run
+     */
+    const executeCommand = function(code) {
+        if(code == '') return;
+        dieRollerLog('> ' + code);
+        const parseResult = parser.parseCommand(code.replaceAll(/\s/g, ''));
         switch (parser.parseErr)
         {
             case 0:
@@ -62,6 +89,11 @@ window.addEventListener('load', e => {
             default:
                 dieRollerLog('Unnamed Error');
         }
+    }
+
+    /** Event handler for the command element */
+    const submitCommand = function () {
+        executeCommand(commandElement.value);
         commandElement.value = '';
     }
 

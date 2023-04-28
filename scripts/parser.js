@@ -8,6 +8,10 @@ const PRECEDENCE = {
 };
 
 export default class DiceScriptParser {
+    /**
+     * Creates a new DiceScriptParser
+     * @param {function} outputMethod The method to be called when printing output. Should accept any number of Strings.
+     */
     constructor(outputMethod) {
         this.log = outputMethod;
         /** Error code for parseCommand(). Used to escape recursion when error encountered as well as retrieve the error after. */
