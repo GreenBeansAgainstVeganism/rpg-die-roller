@@ -8,14 +8,20 @@ const PRECEDENCE = {
 };
 
 export default class DiceScriptParser {
+    log;
+    table;
+    /** Error code for parseCommand(). Used to escape recursion when error encountered as well as retrieve the error after. */
+    parseErr = 0;
+    #recursionBlacklist = [];
+
     /**
      * Creates a new DiceScriptParser
      * @param {function} outputMethod The method to be called when printing output. Should accept any number of Strings.
+     * @param {list<dsElement>} elementTable List holding all the elements which this parser should be able to reference.
      */
-    constructor(outputMethod) {
+    constructor(outputMethod, elementTable) {
         this.log = outputMethod;
-        /** Error code for parseCommand(). Used to escape recursion when error encountered as well as retrieve the error after. */
-        this.parseErr = 0;
+        this.table = elementTable;
     }
 
     /**
@@ -29,6 +35,10 @@ export default class DiceScriptParser {
      * 4: invalid number of dice
      * 5: invalid number of sides
      * 6: mismatched parentheses
+     * 7: invalid advantage level
+     * 8: could not find element
+     * 9: element ill-defined
+     * 10: self-referential element
      * 
      * @param {String} code String containing the command to execute
      * @param {Number} operand optional: holds a previously computed value computing operations
@@ -83,6 +93,43 @@ export default class DiceScriptParser {
             }
 
             return this.parseCommand(m[1].slice(i+1,m[1].length),inner,context);
+        }
+        else if (m = code.match(/^\[(.*?)\](.*)$/)) /* ELEMENT REFERENCE */
+        {
+            // this.log('matched element reference',m);
+
+            this.log(`Accessing element [${m[1]}]:`);
+
+            // check for recursive reference
+            if(this.#recursionBlacklist.includes(m[1]))
+            {
+                this.parseErr = 10; /* Self-referential element */
+                return [];
+            }
+
+            // search table for element reference
+            const ref = this.table.find(item => item.name == m[1]);
+            if(ref === undefined)
+            {
+                this.parseErr = 8; /* Could not find element */
+                return [];
+            }
+
+            // Parse inner expression
+            // In order to catch recursive references, we add the element name to the blacklist before calling parseCommand,
+            // then remove it again immediately after parseCommand returns.
+            this.#recursionBlacklist.push(m[1]);
+            const [inner] = this.parseCommand(ref.code);
+            this.#recursionBlacklist.pop();
+            if(this.parseErr) return [];
+            if(inner === undefined)
+            {
+                this.parseErr = 9; /* Element ill-defined */
+                return [];
+            }
+            
+            this.log(`Element [${m[1]}] evaluated to ${inner}`);
+            return this.parseCommand(m[2],inner,context);
         }
         else if (m = code.match(/^([dD])(.*)$/)) /* DIE ROLL */
         {

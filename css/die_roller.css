@@ -10,11 +10,14 @@
     grid-column: 1;
     border: 2px solid black;
     border-radius: 2px;
+    display: flex;
 }
 
 #element-table {
     width: 100%;
     border-collapse: collapse;
+    display: flex;
+    flex-direction: column;
 }
 
 #element-table thead {
@@ -34,6 +37,7 @@
 
 #element-table tbody {
     width: 100%;
+    flex: 1;
     display: block;
     overflow-y: scroll;
 }
@@ -57,6 +61,10 @@
 
 #element-table tbody td:nth-child(n+2) {
     border-left: 1px solid gray;
+}
+
+#element-table tbody tr:last-child {
+    border-bottom: 1px solid gray;
 }
 
 /* #element-table td:last-child, #element-table th:last-child {
@@ -123,7 +131,7 @@
     display: grid;
     grid-template-columns: 1fr min-content min-content;
     grid-auto-flow: column;
-    gap: 0.3rem;
+    /* gap: 0.3rem; */
 }
 
 #command-entry {
@@ -133,6 +141,7 @@
     outline: none;
     border: 2px solid black;
     border-radius: 2px;
+    margin-right: 0.4rem;
 }
 
 @media screen and (max-width: 1156px) {
@@ -143,6 +152,7 @@
 
     #command-entry {
         grid-area: 1 / 1 / 2 / 3;
+        margin-right: 0;
     }
 
     #log-submit {
