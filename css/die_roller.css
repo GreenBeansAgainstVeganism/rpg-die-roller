@@ -67,13 +67,8 @@
     border-bottom: 1px solid gray;
 }
 
-/* #element-table td:last-child, #element-table th:last-child {
-    flex-basis: 10rem;
-    flex-shrink: 0;
-} */
-
 #element-table tbody tr:nth-child(2n) {
-    background-color: #cadddb;
+    background-color: #bcd3c9;
 }
 
 #element-table tbody td {
@@ -82,7 +77,6 @@
 
 .roll-button {
     margin-right: 0.5rem;
-    /* background-color: #dba0b0; */
     font-weight: bold;
 }
 

@@ -55,7 +55,7 @@ class dsElement {
     }
 
     roll() {
-        executeCommand(this.code);
+        executeCommand(`[${this.name}]`);
     }
 }
 
