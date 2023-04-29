@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -11,6 +12,7 @@
     <script type="module" src="scripts/parser.js"></script>
     <title>RPG Die Roller</title>
 </head>
+
 <body>
     <header>
         <h1>The Ultimate RPG Die Roller</h1>
@@ -24,13 +26,13 @@
     </header>
     <main>
         <div id="die-roller-tab">
-            <div id="elements-panel">
-                <table id="element-table">
+            <div id="formulas-panel">
+                <table id="formula-table">
                     <colgroup>
-                        <col id="element-names">
-                        <col id="element-categories">
-                        <col id="element-commands">
-                        <col id="element-options">
+                        <col id="formula-names">
+                        <col id="formula-categories">
+                        <col id="formula-commands">
+                        <col id="formula-options">
                     </colgroup>
                     <thead>
                         <tr>
@@ -40,13 +42,38 @@
                             <th>Options</th>
                         </tr>
                     </thead>
-                    <tbody id="element-tbody">
-                        
+                    <tbody id="formula-tbody">
+
                     </tbody>
                 </table>
+                <button id="formula-new">+ New Formula</button>
             </div>
             <div id="edit-panel">
-
+                <h2>Edit Formula:</h2>
+                <div id="edit-controls">
+                    <div>
+                        <label for="formula-name-input">Name: </label>
+                        <input type="text" name="formula-name-input" id="formula-name-input" pattern="^(?!.*[\[\]])" title="Can contain any characters except for square brackets [ ]" placeholder="6-sided die">
+                    </div>
+                    <div>
+                        <label for="formula-category-input">Category:</label>
+                        <select name="formula-category-input" id="formula-category-input">
+                            <option value="Stat">Stat</option>
+                            <option value="Equipment">Equipment</option>
+                            <option value="Affliction">Affliction</option>
+                            <option value="Misc" selected>Misc</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="formula-command-input">Formula: </label>
+                        <input type="text" name="formula-command-input" id="formula-command-input" class="formula" placeholder="1d6">
+                    </div>
+                    <div style="display:flex">
+                        <button id="formula-save">Save Changes</button>
+                        <button id="formula-test">Test</button>
+                        <button id="formula-delete">Delete</button>
+                    </div>
+                </div>
             </div>
             <div id="log-panel">
                 <div id="log-box">
@@ -55,7 +82,7 @@
                     </div>
                 </div>
                 <div id="log-controls">
-                    <input type="text" name="command-entry" id="command-entry" placeholder="ex: D20, 3d6, d8+2">
+                    <input type="text" name="command-entry" id="command-entry" class="formula" placeholder="ex: D20, 3d6, d8+2">
                     <button id="log-submit">Submit</button>
                     <button id="log-clear">Clear</button>
                 </div>
@@ -64,8 +91,10 @@
     </main>
     <footer>
         <p>
-            &copy;<script>document.write(new Date().getFullYear());</script> Sage Cook
+            &copy;
+            <script>document.write(new Date().getFullYear());</script> Sage Cook
         </p>
     </footer>
 </body>
+
 </html>
