@@ -2,10 +2,13 @@ import Parser from './parser.js';
 
 const LOGHISTORYLENGTH = 100;
 
-/**list of strings currently in the log. use dieRollerLog() to change*/
+/** Determines which tab is currently active */
+let currentTab = 0;
+
+/** list of strings currently in the log. use dieRollerLog() to change*/
 let log_lines = [];
 
-/**list of user defined formulas that are accessible via <> references in dicescript */
+/** list of user defined formulas that are accessible via <> references in dicescript */
 let formulas = [];
 
 /** Holds the name of the currently selected formula */
@@ -24,9 +27,22 @@ const formulaCommandInput = document.getElementById('formula-command-input');
 const formulaSaveElement = document.getElementById('formula-save');
 const formulaTestElement = document.getElementById('formula-test');
 const formulaDeleteElement = document.getElementById('formula-delete');
-// const editPanelElement = document.getElementById('edit-panel');
 const formulaNewElement = document.getElementById('formula-new');
 const formulaClearElement = document.getElementById('formula-clear');
+const mainElement = document.querySelector('main');
+const tabButtons = document.querySelectorAll('nav button');
+
+
+/**
+ * Changes what tab is currently visible in the main element.
+ * @param {Number} index The number tab to change to
+ */
+function changeTab (index) {
+    currentTab = index;
+    [...mainElement.children].forEach((child, i) => {
+        child.style.left = `calc(-${index*2}rem - ${index}00%)`; // I hate this solution but it works
+    });
+}
 
 /**
  * Print text to the log
@@ -272,6 +288,11 @@ function executeCommand(code) {
 }
 
 // Adding event handlers
+
+/** Event handler for tab buttons */
+for (let b of tabButtons.entries()) {
+    b[1].addEventListener('click', ev => changeTab(b[0]));
+}
 
 /** Event handler for the command element */
 const handleSubmitCommand = function () {

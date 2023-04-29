@@ -5,6 +5,12 @@
     gap: 1rem;
 }
 
+#die-roller-tab h2 {
+    font-size: 16pt;
+    transform: scaleY(80%);
+    line-height: 80%;
+}
+
 #formulas-panel {
     grid-row: 1;
     grid-column: 1;

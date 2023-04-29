@@ -1,0 +1,25 @@
+#help-tab {
+    color: #842c38;
+    text-align: center;
+    padding-inline: 10%;
+    overflow-y: scroll;
+    scrollbar-gutter: stable both-edges;
+}
+
+#help-tab h3 {
+    font-style: italic;
+}
+
+#help-tab p, #help-tab dl {
+    font-size: 14pt;
+}
+
+#help-tab dl {
+    width: fit-content;
+    text-align: left;
+    margin: auto;
+}
+
+#help-tab dt {
+    font-weight: bold;
+}

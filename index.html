@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Labrada">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/die_roller.css">
+    <link rel="stylesheet" href="css/help.css">
     <script type="module" src="scripts/script.js"></script>
     <script type="module" src="scripts/parser.js"></script>
     <title>RPG Die Roller</title>
@@ -93,6 +94,182 @@
                     <button id="log-clear">Clear</button>
                 </div>
             </div>
+        </div>
+        <div id="profile-tab">
+            profiles tab
+        </div>
+        <div id="help-tab">
+            <h2>About this project:</h2>
+            <p>
+                Dungeons and Dragons&trade;, and other similar tabletop games are a hobby very close to my heart, and one that I truly believe anyone can enjoy regardless of personality, culture, or neurological wiring, if they just give it a chance. However, there is one factor that often dissuades people from trying, and that is complexity. This is at no fault of the creators; no matter how well-designed of a system you're playing, there are always quite a few terms and rules you'll have to familiarize yourself with, from knowing which dice to roll to which modifiers to add, and you can't escape the fact that some people just don't like doing addition. Inevitably, you end up spending more time re-explaining rules and doing arithmetic and less time immersed in the action.
+            </p>
+            <p>
+                Other online dice rollers simply seek to automate and digitize the act of rolling dice, which, some would argue, is one of the fundamental joys of playing a tabletop RPG in the first place, but I wanted to do something more. This project is my attempt to mitigate some of that complexity issue by giving you the power to program your own die-rolling formulas, using a little notation language I'll call dicescript. With a bit of preliminary setup, you can create a die roller that is perfectly suited to your needs, where every roll/calculation you'll ever need to make takes just one click of a button! No need to remember what your stats are, or which stat affects which roll. No need to add modifiers or remember that you have a status effect influencing your odds. It's all done for you, almost like a video game. And what's more, you can save your profiles and send them to your friends so as a gracious DM, you can bear the weight of initial setup for your clueless party members. So, if you think you're ready to wield this power, scroll down.
+            </p>
+            <p>&darr; &darr; &darr;</p>
+            <br>
+            <h2>
+                Guide:
+            </h2>
+            <h3>
+                1: The Console
+            </h3>
+            <p>
+                On the right side of the Die Roller tab (or the bottom on mobile) you'll find the console. This is where the output of all your rolls will be displayed, and there is also a box at the bottom where you can enter commands in dicescript. This is the most basic way to test out different commands and see how they work. Whenever a command is run, either through the bottom box or via a formula, the console will display some information about what it is doing, as well as the result of the command at the very bottom.
+            </p>
+            <h3>
+                2: Dicescript
+            </h3>
+            <p>
+                Dicescript is the notation that is used to write formulas and commands. I tried to keep it as simple as possible, while still making it capable of expressing all the types of rolls that one would concievably encounter in a tabletop game. Here are all of the things that dicescript understands:
+            </p>
+            <dl>
+                <dt>White Space</dt>
+                <dd>
+                    <p>Dicescript will ignore any space characters in your command, so place them wherever you want.</p>
+                </dd>
+                <dt>Numbers</dt>
+                <dd>
+                    <p>Dicescript understands any positive or negative WHOLE number. If you want a fraction, you can use division as described below.</p>
+                    <p class="formula">&gt; 42
+Result: 42</p>
+                </dd>
+                <dt>Die Rolls</dt>
+                <dd>
+                    <p>Dicescript understands die rolls in the standard format that most D&D players use: XdY, where X is the quantity of dice rolled and Y is the number of sides on each die.</p>
+                    <p class="formula">&gt; 2d6
+Rolling 2 dice with 6 sides:
+1: 3
+2: 1
+3 + 1 = 4
+Result: 4</p>
+                    <p>You can also omit the X bit if you're just rolling one die:</p>
+                    <p class="formula">&gt; d8
+Rolling 1 die with 8 sides: 7
+Result: 7</p>
+                    <p>It has no effect on the calculation, but if you'd like the console to notify you of critical hits/fails, simply capitalize the 'D':</p>
+                    <p class="formula">&gt; D20
+Rolling 1 die with 20 sides: 20 CRIT!
+Result: 20</p>
+                    <p>And no, since I know you're going to ask, you cannot roll more than 999 dice at once.</p>
+                    <p class="formula">&gt; 290138d6
+Error: Invalid number of dice</p>
+                </dd>
+                <dt>Basic Arithmetic</dt>
+                <dd>
+                    <p>Dicescript understands addition, subtraction, multiplication and division. These work as you would imagine:</p>
+                    <p class="formula">&gt; 2+2
+Adding 2 + 2:
+4
+Result: 4
+
+&gt; 4*3
+Multiplying 4 * 3:
+12
+Result: 12
+
+&gt; 11-3*2
+Multiplying 3 * 2:
+6
+Subtracting 11 - 6:
+5
+Result: 5</p>
+                    <p>You can, of course, combine these operations with die rolls as well:</p>
+                    <p class="formula">&gt; 2d6+5
+Rolling 2 dice with 6 sides:
+1: 5
+2: 4
+5 + 4 = 9
+Adding 9 + 5:
+14
+Result: 14</p>
+                </dd>
+                <dt>
+                    Parentheses
+                </dt>
+                <dd>
+                    <p>Dicescript supports using parentheses as grouping symbols to affect the order of operations, just like normal math notation.</p>
+                    <p class="formula">&gt; (11-3)*2
+Subtracting 11 - 3:
+8
+Multiplying 8 * 2:
+16
+Result: 16</p>
+                    <p>It's worth noting you can use parentheses with die rolls as well, allowing you to make the quantity of dice or number of sides into expressions:</p>
+                    <p class="formula">&gt; (2+3)d6
+Adding 2 + 3:
+5
+Rolling 5 dice with 6 sides:
+1: 3
+2: 3
+3: 3
+4: 2
+5: 1
+3 + 3 + 3 + 2 + 1 = 12
+Result: 12</p>
+                </dd>
+                <dt>Advantage</dt>
+                <dd>
+                    <p>A common mechanic in tabletop games is the concept of advantage/disadvantage. If a roll has advantage, it means you roll it twice and take the biggest result. If a roll has disadvantage, you roll it twice and take the smallest result. You can tell dicescript to do a roll with advantage/disadvantage by prefacing it with an apostrophe ' or period . character respectively:</p>
+                    <p class="formula">&gt; &apos;D20
+Trying with advantage:
+Trial 1:
+Rolling 1 die with 20 sides: 20 CRIT!
+Trial 2:
+Rolling 1 die with 20 sides: 16
+Result with advantage: 20
+Result: 20
+
+&gt; .D20
+Trying with disadvantage:
+Trial 1:
+Rolling 1 die with 20 sides: 12
+Trial 2:
+Rolling 1 die with 20 sides: 18
+Result with disadvantage: 12
+Result: 12</p>
+                    <p>This works on any expression, not just die rolls, although it won't make any difference unless there is a die roll somewhere within the expression.</p>
+                    <p class="formula">&gt; &apos;(d6+d8)
+Trying with advantage:
+Trial 1:
+Rolling 1 die with 6 sides: 6
+Rolling 1 die with 8 sides: 3
+Adding 6 + 3:
+9
+Trial 2:
+Rolling 1 die with 6 sides: 5
+Rolling 1 die with 8 sides: 1
+Adding 5 + 1:
+6
+Result with advantage: 9
+Result: 9</p>
+                    <p>Additionally, you can give an expression higher levels of advantage/disadvantage (meaning it gets rolled additional times) by including the level out front.</p>
+                    <p class="formula">&gt; 2&apos;D20
+Trying with advantage x2:
+Trial 1:
+Rolling 1 die with 20 sides: 6
+Trial 2:
+Rolling 1 die with 20 sides: 4
+Trial 3:
+Rolling 1 die with 20 sides: 13
+Result with advantage: 13
+Result: 13</p>
+                    <p>The level of advantage/disadvantage is capped at 9 for performance reasons.</p>
+                    <p class="formula">&gt; 10&apos;D20
+Error: Invalid advantage level</p>
+                </dd>
+                <dt>References</dt>
+                <dd>
+                    <p>Finally, dicescript allows you to put references to other formulas within your command. You can read more about formulas below, but say I&apos;m playing a game where my character has a Strength stat of 2, and I have a weapon which deals damage equal to 1d8 + my character&apos;s Strength. In my command, I can type the name of the value I want to reference, (in this case, &apos;Strength&apos;) surrounded in square brackets [ ] and dicescript will automatically insert that value into the expression.</p>
+                    <p class="formula">&gt; 1d8+[Strength]
+Rolling 1 die with 8 sides: 6
+Evaluating formula [Strength]:
+Formula [Strength] evaluated to 2
+Adding 6 + 2:
+8
+Result: 8</p>
+                </dd>
+            </dl>
         </div>
     </main>
     <footer>
