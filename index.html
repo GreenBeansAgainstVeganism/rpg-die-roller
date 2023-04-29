@@ -36,6 +36,7 @@
                     </colgroup>
                     <thead>
                         <tr>
+                            <th></th>
                             <th>Name</th>
                             <th>Category</th>
                             <th>Formula</th>
@@ -61,9 +62,11 @@
                     <div>
                         <label for="formula-category-input">Category:</label>
                         <select name="formula-category-input" id="formula-category-input">
+                            <option value="Action">Action</option>
+                            <option value="Check">Check</option>
+                            <option value="Modifier">Modifier</option>
                             <option value="Stat">Stat</option>
-                            <option value="Equipment">Equipment</option>
-                            <option value="Affliction">Affliction</option>
+                            <option value="Status Effect">Status Effect</option>
                             <option value="Misc" selected>Misc</option>
                         </select>
                     </div>
@@ -93,9 +96,11 @@
         </div>
     </main>
     <footer>
+        
         <p>
             &copy;
-            <script>document.write(new Date().getFullYear());</script> Sage Cook
+            <script>document.write(new Date().getFullYear());</script>
+            Sage Cook | Icons by Febrian Hidayat
         </p>
     </footer>
 </body>

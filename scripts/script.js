@@ -92,15 +92,17 @@ function addFormula(item, replace = false) {
     tr.title = 'Click to edit';
 
     const handleSelectFormula = function (ev) {
-        selectFormula(ev.currentTarget.dataset.formulaName);
+        if (ev.currentTarget.dataset.formulaName == formulaSelection) deselectFormula();
+        else selectFormula(ev.currentTarget.dataset.formulaName);
         ev.stopPropagation();
     }
     tr.addEventListener('click', handleSelectFormula);
 
-    const cells = Array(4).fill(0).map(() => document.createElement('td'));
-    cells[0].append(item.name);
-    cells[1].append(item.category);
-    cells[2].append(item.code);
+    const cells = Array(5).fill(0).map(() => document.createElement('td'));
+    cells[0].dataset.category = item.category;
+    cells[1].append(item.name);
+    cells[2].append(item.category);
+    cells[3].append(item.code);
 
     const button = document.createElement('button');
     button.append('Roll!');
@@ -111,7 +113,7 @@ function addFormula(item, replace = false) {
         ev.stopPropagation();
     });
 
-    cells[3].append(button);
+    cells[4].append(button);
     tr.append(...cells);
     formulaTableElement.appendChild(tr);
 }
@@ -208,9 +210,12 @@ function sortFormulaTable(compareFn) {
 }
 
 // Some compare functions
+const categoryOrder = ['Action','Check','Modifier','Stat','Status Effect','Misc'];
 const sortByName = (row1, row2) => row1.dataset.formulaName.localeCompare(row2.dataset.formulaName);
-const sortByCategory = (row1, row2) => formulas.find(x => x.name == row1.dataset.formulaName).category
-    .localeCompare(formulas.find(x => x.name == row2.dataset.formulaName).category);
+const sortByCategory = (row1, row2) => {
+    return  categoryOrder.indexOf(formulas.find(x => x.name == row1.dataset.formulaName).category) -
+            categoryOrder.indexOf(formulas.find(x => x.name == row2.dataset.formulaName).category);
+}
 const sortByCategoryName = (row1, row2) => {
     const s = sortByCategory(row1,row2);
     return s === 0 ? sortByName(row1,row2) : s;
@@ -223,7 +228,7 @@ const parser = new Parser(dieRollerLog, formulas);
  * @param {String} code the dicescript command to run
  */
 function executeCommand(code) {
-    if (code == '') return;
+    if (code.match(/^\s*$/)) return;
     dieRollerLog('> ' + code);
     const parseResult = parser.parseCommand(code);
     switch (parser.parseErr)
@@ -283,6 +288,9 @@ logSubmitElement.addEventListener('click', handleSubmitCommand);
 logClearElement.addEventListener('click', dieRollerLogClear);
 
 formulaTableElement.addEventListener('click', deselectFormula);
+document.addEventListener('keydown', ev => {
+    if(ev.key == 'Escape') deselectFormula();
+})
 
 /** Event handler for saving formulas */
 const handleSaveFormula = function () {
@@ -340,8 +348,8 @@ formulaClearElement.addEventListener('click', handleClearFormulas);
 // Preloaded formulas
 addFormula(new dsFormula('Strength', 'Stat', '4'));
 addFormula(new dsFormula('Dexterity', 'Stat', '2'));
-addFormula(new dsFormula('Broadsword', 'Equipment', '2d8+[Strength]'));
-addFormula(new dsFormula('Longbow', 'Equipment', '2d6+[Dexterity]'));
+addFormula(new dsFormula('Broadsword', 'Action', '2d8+[Strength]'));
+addFormula(new dsFormula('Longbow', 'Action', '2d6+[Dexterity]'));
 addFormula(new dsFormula('Recursion', 'Misc', 'd20+[Recursion]'));
 sortFormulaTable(sortByCategoryName);
 deselectFormula();
