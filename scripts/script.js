@@ -26,6 +26,7 @@ const formulaTestElement = document.getElementById('formula-test');
 const formulaDeleteElement = document.getElementById('formula-delete');
 // const editPanelElement = document.getElementById('edit-panel');
 const formulaNewElement = document.getElementById('formula-new');
+const formulaClearElement = document.getElementById('formula-clear');
 
 /**
  * Print text to the log
@@ -326,6 +327,15 @@ const handleNewFormula = function () {
 }
 
 formulaNewElement.addEventListener('click', handleNewFormula);
+
+const handleClearFormulas = function () {
+    if(!window.confirm(`Are you sure you want to clear all formulas? (This action is not reversible.)`))
+        return;
+    formulas = [];
+    [...formulaTableElement.children].forEach(child => child.remove());
+}
+
+formulaClearElement.addEventListener('click', handleClearFormulas);
 
 // Preloaded formulas
 addFormula(new dsFormula('Strength', 'Stat', '4'));

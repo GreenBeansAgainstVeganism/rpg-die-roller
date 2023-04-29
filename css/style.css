@@ -20,7 +20,7 @@ button {
 }
 
 header {
-    padding: 1rem;
+    padding-block: 1rem;
 }
 
 h1 {
@@ -37,6 +37,8 @@ h1 {
 
 nav ul {
     margin: auto;
+    width: -webkit-fit-content;
+    width: -moz-fit-content;
     width: fit-content;
     padding-inline: 1em;
     list-style: none;
@@ -46,6 +48,7 @@ nav ul {
 }
 
 nav ul li button {
+    height: 100%;
     padding: 0.7rem 2rem;
     background-color: transparent;
     border: none;
@@ -82,14 +85,18 @@ main > div {
 
 main button {
     background-color: white;
-    border-image: url('../assets/button_border.png');
+    -o-border-image: url('../assets/button_border.png');
+       border-image: url('../assets/button_border.png');
     border-image-width: 4px;
     border-image-slice: 16;
     border-image-outset: 0 4px 4px 0;
     position: relative;
     transform: translate(-4px, -4px);
     margin: 0;
-    user-select: none;
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
 }
 
 main button:hover {
@@ -105,7 +112,8 @@ main button:active {
 }
 
 main button:disabled {
-    filter: grayscale();
+    -webkit-filter: grayscale();
+            filter: grayscale();
     box-shadow: none;
     background-color: white;
     border-image-source: url('../assets/button_border.png');
@@ -146,4 +154,11 @@ footer {
 
 footer p {
     margin: 0;
+}
+
+@media screen and (max-width: 850px) {
+    body {
+        height: 240vh;
+        max-height: 240vh;
+    }
 }
