@@ -25,7 +25,7 @@
     width: 100%;
     height: 2rem;
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 1fr 2fr 1fr;
 }
 
 #formula-table {
@@ -185,6 +185,15 @@
     gap: 1rem;
 }
 
+#formula-arrange-controls {
+    display: flex;
+    flex-direction: column;
+}
+
+#formula-arrange-controls button {
+    line-height: 1;
+}
+
 #log-box {
     flex: 1;
     position: relative;
@@ -251,7 +260,18 @@
         grid-column: 1;
     }
 
+    #formula-table {
+        height: calc(100% - 4rem);
+        max-height: calc(100% - 4rem);
+    }
+
     #table-controls {
         grid-template-columns: 1fr 1fr;
+        height: 4rem;
+    }
+    
+    #formula-new {
+        grid-area: 2 / 1 / 3 / 3;
+        z-index: 1;
     }
 }

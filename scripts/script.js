@@ -32,6 +32,9 @@ const formulaCommandInput = document.getElementById('formula-command-input');
 const formulaSaveElement = document.getElementById('formula-save');
 const formulaTestElement = document.getElementById('formula-test');
 const formulaDeleteElement = document.getElementById('formula-delete');
+const formulaUpElement = document.getElementById('formula-up');
+const formulaDownElement = document.getElementById('formula-down');
+const formulaSortElement = document.getElementById('formula-sort');
 const formulaNewElement = document.getElementById('formula-new');
 const formulaClearElement = document.getElementById('formula-clear');
 const mainElement = document.querySelector('main');
@@ -188,6 +191,8 @@ function selectFormula(name) {
     formulaSaveElement.disabled = false;
     formulaTestElement.disabled = false;
     formulaDeleteElement.disabled = false;
+    formulaUpElement.disabled = false;
+    formulaDownElement.disabled = false;
 }
 
 /**
@@ -211,6 +216,8 @@ function deselectFormula() {
     formulaSaveElement.disabled = true;
     formulaTestElement.disabled = true;
     formulaDeleteElement.disabled = true;
+    formulaUpElement.disabled = true;
+    formulaDownElement.disabled = true;
 
     formulaNameInput.value = '';
     formulaCategoryInput.value = '';
@@ -315,11 +322,13 @@ const handleSubmitCommand = function () {
 }
 
 commandElement.addEventListener('keydown', ev => {
+    if(currentTab != 0) return;
     if (ev.key == 'Enter') handleSubmitCommand();
     else if (ev.key == 'ArrowUp')
     {
         if(console_history_pos < console_history.length-1) console_history_pos++;
         if(console_history_pos > -1) commandElement.value = console_history[console_history_pos];
+        ev.stopPropagation();
     }
     else if (ev.key == 'ArrowDown')
     {
@@ -328,6 +337,7 @@ commandElement.addEventListener('keydown', ev => {
             console_history_pos--;
             commandElement.value = console_history_pos > -1 ? console_history[console_history_pos] : '';
         }
+        ev.stopPropagation();
     }
 })
 
@@ -345,7 +355,6 @@ const handleSaveFormula = function () {
     deleteFormula(formulaSelection);
     addFormula(new dsFormula(formulaNameInput.value, formulaCategoryInput.value, formulaCommandInput.value));
     selectFormula(formulaNameInput.value);
-    sortFormulaTable(sortByCategoryName);
 }
 
 formulaSaveElement.addEventListener('click', handleSaveFormula);
@@ -367,6 +376,24 @@ const handleDeleteFormula = function () {
 
 formulaDeleteElement.addEventListener('click', handleDeleteFormula);
 
+/** Event handler for moving formula up */
+const handlemoveFormulaUp = function() {
+    const row = [...formulaTableElement.children].find(x => x.dataset.formulaName == formulaSelection)
+    if(row.previousElementSibling) row.after(row.previousElementSibling);
+    return;
+}
+formulaUpElement.addEventListener('click', handlemoveFormulaUp);
+
+/** Event handler for moving formula down */
+const handlemoveFormulaDown = function() {
+    const row = [...formulaTableElement.children].find(x => x.dataset.formulaName == formulaSelection)
+    if(row.nextElementSibling) row.before(row.nextElementSibling);
+    return;
+}
+formulaDownElement.addEventListener('click', handlemoveFormulaDown);
+
+formulaSortElement.addEventListener('click', ev => sortFormulaTable(sortByCategoryName));
+
 /** Event handler for creating a new formula */
 const handleNewFormula = function () {
     let name = 'New Formula';
@@ -377,7 +404,6 @@ const handleNewFormula = function () {
         name = 'New Formula '+i;
     }
     addFormula(new dsFormula(name, 'Misc', '1d6'));
-    sortFormulaTable(sortByCategoryName);
     selectFormula(name);
     formulaNameInput.focus();
 }
@@ -393,16 +419,28 @@ const handleClearFormulas = function () {
 
 formulaClearElement.addEventListener('click', handleClearFormulas);
 
+// global key events
+document.addEventListener('keydown', ev => {
+    if(currentTab != 0) return;
+    if(ev.key == 'ArrowUp' && formulaSelection)
+    {
+        handlemoveFormulaUp();
+    }
+    else if(ev.key == 'ArrowDown' && formulaSelection)
+    {
+        handlemoveFormulaDown();
+    }
+})
+
 // Preloaded formulas
 addFormula(new dsFormula('20-sided die', 'Misc', 'D20'));
 addFormula(new dsFormula('10-sided die', 'Misc', 'd10'));
-addFormula(new dsFormula('100-sided die', 'Misc', 'd100'));
 addFormula(new dsFormula('8-sided die', 'Misc', 'd8'));
 addFormula(new dsFormula('6-sided die', 'Misc', 'd6'));
 addFormula(new dsFormula('4-sided die', 'Misc', 'd4'));
-sortFormulaTable(sortByCategoryName);
+addFormula(new dsFormula('100-sided die', 'Misc', 'd100'));
 deselectFormula();
 
 
-dieRollerLog('Welcome!', 'Enter what you\'d like to roll below:', '(Check out the help tab for more info!)');
+dieRollerLog('Welcome!', 'Enter what you\'d like to roll below, or roll one of the formulas to the left:', '(Check out the help tab for more info!)');
 commandElement.focus();

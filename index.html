@@ -50,6 +50,7 @@
                     </tbody>
                 </table>
                 <div id="table-controls">
+                    <button id="formula-sort">Sort Formulas</button>
                     <button id="formula-new">+ New Formula</button>
                     <button id="formula-clear">Clear All Formulas</button>
                 </div>
@@ -80,6 +81,10 @@
                         <button id="formula-save">Save Changes</button>
                         <button id="formula-test">Test</button>
                         <button id="formula-delete">Delete</button>
+                        <div id="formula-arrange-controls">
+                            <button id="formula-up">&uarr;</button>
+                            <button id="formula-down">&darr;</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -90,7 +95,7 @@
                     </div>
                 </div>
                 <div id="log-controls">
-                    <input type="text" name="command-entry" id="command-entry" class="formula" placeholder="ex: D20, 3d6, d8+2">
+                    <input type="text" name="command-entry" id="command-entry" class="formula" autocomplete="off" placeholder="ex: D20, 3d6, d8+2">
                     <button id="log-submit">Submit</button>
                     <button id="log-clear">Clear</button>
                 </div>
