@@ -1,12 +1,17 @@
 import Parser from './parser.js';
 
 const LOGHISTORYLENGTH = 100;
+const CONSOLEHISTORYLENGTH = 50;
 
 /** Determines which tab is currently active */
 let currentTab = 0;
 
 /** list of strings currently in the log. use dieRollerLog() to change*/
 let log_lines = [];
+
+/** holds the list of previously executed commands */
+let console_history = [];
+let console_history_pos = -1;
 
 /** list of user defined formulas that are accessible via <> references in dicescript */
 let formulas = [];
@@ -246,6 +251,15 @@ const parser = new Parser(dieRollerLog, formulas);
 function executeCommand(code) {
     if (code.match(/^\s*$/)) return;
     dieRollerLog('> ' + code);
+
+    // add command to history
+    console_history_pos = -1;
+    if(console_history[0] != code)
+    {
+        console_history.unshift(code);
+        while(console_history.length > CONSOLEHISTORYLENGTH) console_history.pop();
+    }
+
     const parseResult = parser.parseCommand(code);
     switch (parser.parseErr)
     {
@@ -302,6 +316,19 @@ const handleSubmitCommand = function () {
 
 commandElement.addEventListener('keydown', ev => {
     if (ev.key == 'Enter') handleSubmitCommand();
+    else if (ev.key == 'ArrowUp')
+    {
+        if(console_history_pos < console_history.length-1) console_history_pos++;
+        if(console_history_pos > -1) commandElement.value = console_history[console_history_pos];
+    }
+    else if (ev.key == 'ArrowDown')
+    {
+        if(console_history_pos > -1)
+        {
+            console_history_pos--;
+            commandElement.value = console_history_pos > -1 ? console_history[console_history_pos] : '';
+        }
+    }
 })
 
 logSubmitElement.addEventListener('click', handleSubmitCommand);
@@ -367,11 +394,12 @@ const handleClearFormulas = function () {
 formulaClearElement.addEventListener('click', handleClearFormulas);
 
 // Preloaded formulas
-addFormula(new dsFormula('Strength', 'Stat', '4'));
-addFormula(new dsFormula('Dexterity', 'Stat', '2'));
-addFormula(new dsFormula('Broadsword', 'Action', '2d8+[Strength]'));
-addFormula(new dsFormula('Longbow', 'Action', '2d6+[Dexterity]'));
-addFormula(new dsFormula('Recursion', 'Misc', 'd20+[Recursion]'));
+addFormula(new dsFormula('20-sided die', 'Misc', 'D20'));
+addFormula(new dsFormula('10-sided die', 'Misc', 'd10'));
+addFormula(new dsFormula('100-sided die', 'Misc', 'd100'));
+addFormula(new dsFormula('8-sided die', 'Misc', 'd8'));
+addFormula(new dsFormula('6-sided die', 'Misc', 'd6'));
+addFormula(new dsFormula('4-sided die', 'Misc', 'd4'));
 sortFormulaTable(sortByCategoryName);
 deselectFormula();
 

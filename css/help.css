@@ -10,16 +10,21 @@
     font-style: italic;
 }
 
-#help-tab p, #help-tab dl {
+#help-tab p, #help-tab li{
     font-size: 14pt;
 }
 
-#help-tab dl {
+#help-tab ol {
     width: fit-content;
     text-align: left;
     margin: auto;
 }
 
-#help-tab dt {
+#help-tab details {
+    width: auto;
+    text-align: left;
+}
+
+#help-tab summary {
     font-weight: bold;
 }
