@@ -21,10 +21,20 @@
 }
 
 #help-tab details {
-    width: auto;
+    margin-right: auto;
+    width: fit-content;
     text-align: left;
 }
 
 #help-tab summary {
+    cursor: pointer;
+    width: fit-content;
     font-weight: bold;
+}
+
+#help-tab .formula {
+    background-color: #b1d1cc;
+    padding: 0.3rem;
+    border-radius: 0.3rem;
+    color: black;
 }
