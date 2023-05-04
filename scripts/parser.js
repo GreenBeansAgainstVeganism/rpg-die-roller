@@ -12,6 +12,8 @@ export default class DiceScriptParser {
     table;
     /** Error code for parseCommand(). Used to escape recursion when error encountered as well as retrieve the error after. */
     parseErr = 0;
+    critCount = 0;
+    failCount = 0;
     #recursionBlacklist = [];
 
     /**
@@ -22,6 +24,19 @@ export default class DiceScriptParser {
     constructor(outputMethod, formulaTable) {
         this.log = outputMethod;
         this.table = formulaTable;
+    }
+
+    getCritText() {
+        let result = '';
+        if(this.critCount)
+        {
+            result += ` ${this.critCount > 1 ? this.critCount+'x ': ''}CRIT!`;
+        }
+        if(this.failCount)
+        {
+            result += ` ${this.failCount > 1 ? this.failCount+'x ': ''}CRIT FAIL!`;
+        }
+        return result;
     }
 
     /**
@@ -41,11 +56,24 @@ export default class DiceScriptParser {
      * 10: self-referential formula
      * 
      * @param {String} code String containing the command to execute
+     * @returns {[Number, String]} the computed number, any trailing code not yet parsed
+     */
+    parseCommand (code)
+    {
+        this.critCount = 0;
+        this.failCount = 0;
+        return this.#parseCommandRec(code);
+    }
+
+
+    /**
+     * Recursive form of parseCommand
+     * @param {String} code String containing the command to execute
      * @param {Number} operand optional: holds a previously computed value computing operations
      * @param {Number} context optional: holds the precedence level at which to stop executing
      * @returns {[Number, String]} the computed number, any trailing code not yet parsed
      */
-    parseCommand = function (code, operand, context) {
+    #parseCommandRec (code, operand, context) {
         // variable to hold match results
         let m;
 
@@ -65,7 +93,7 @@ export default class DiceScriptParser {
         else if (m = code.match(/^(\d+)(.*)$/)) /* NUMBER */
         {
             // this.log('matched number',m);
-            return this.parseCommand(m[2], Number(m[1]), context);
+            return this.#parseCommandRec(m[2], Number(m[1]), context);
         }
         else if (m = code.match(/^\((.*)$/)) /* PARENTHESIS */
         {
@@ -87,7 +115,7 @@ export default class DiceScriptParser {
             }
 
             // Parse inner expression
-            const [inner] = this.parseCommand(m[1].slice(0,i));
+            const [inner] = this.#parseCommandRec(m[1].slice(0,i));
             if(this.parseErr) return [];
             if(inner === undefined)
             {
@@ -95,7 +123,7 @@ export default class DiceScriptParser {
                 return [];
             }
 
-            return this.parseCommand(m[1].slice(i+1,m[1].length),inner,context);
+            return this.#parseCommandRec(m[1].slice(i+1,m[1].length),inner,context);
         }
         else if (m = code.match(/^\[(.*?)\](.*)$/)) /* FORMULA REFERENCE */
         {
@@ -122,8 +150,9 @@ export default class DiceScriptParser {
             // In order to catch recursive references, we add the formula name to the blacklist before calling parseCommand,
             // then remove it again immediately after parseCommand returns.
             this.#recursionBlacklist.push(m[1]);
-            const [inner] = this.parseCommand(ref.code);
+            const [inner] = this.#parseCommandRec(ref.code);
             this.#recursionBlacklist.pop();
+
             if(this.parseErr) return [];
             if(inner === undefined)
             {
@@ -132,7 +161,8 @@ export default class DiceScriptParser {
             }
             
             this.log(`Formula [${m[1]}] evaluated to ${inner}`);
-            return this.parseCommand(m[2],inner,context);
+            
+            return this.#parseCommandRec(m[2],inner,context);
         }
         else if (m = code.match(/^([dD])(.*)$/)) /* DIE ROLL */
         {
@@ -148,7 +178,7 @@ export default class DiceScriptParser {
                 this.parseErr = 4; /* invalid number of dice */
                 return [];
             }
-            let [sides, tail] = this.parseCommand(m[2], undefined, PRECEDENCE.dice);
+            let [sides, tail] = this.#parseCommandRec(m[2], undefined, PRECEDENCE.dice);
             if (this.parseErr) return [];
             if (sides === undefined)
             {
@@ -170,6 +200,11 @@ export default class DiceScriptParser {
             for (let i = 0; i < count; i++)
             {
                 const roll = Math.floor(Math.random() * sides) + 1;
+                if(doCrits)
+                {
+                    if(roll===sides) this.critCount++;
+                    if(roll===1) this.failCount++;
+                }
                 result += roll;
                 rolls.push(roll);
             }
@@ -185,8 +220,8 @@ export default class DiceScriptParser {
             {
                 this.log(`Rolling 1 die with ${sides} sides: ${result}${doCrits?(result===1 ? ' CRIT FAIL!' : result===sides ? ' CRIT!': ''):''}`);
             }
-
-            return tail ? this.parseCommand(tail, result, context) : [result];
+            
+            return tail ? this.#parseCommandRec(tail, result, context) : [result];
         }
         else if (m = code.match(/^'(.*)$/)) /* ADVANTAGE */
         {
@@ -204,27 +239,46 @@ export default class DiceScriptParser {
             }
             if(operand === undefined) operand = 1;
 
+            // Save the current number of crits / fails
+            const baseCrits = this.critCount;
+            const baseFails = this.failCount;
+
             this.log(`Trying with advantage${operand!=1?` x${operand}`:''}:`,'Trial 1:');
-            let [best, tail] = this.parseCommand(m[1], undefined, PRECEDENCE.advantage);
+            let [best, tail] = this.#parseCommandRec(m[1], undefined, PRECEDENCE.advantage);
             if(this.parseErr) return [];
             if(best === undefined) {
                 this.parseErr = 3; /* unexpected symbol */
                 return [];
             }
+
+            // These will decide what the final count of crits / fails is
+            let bestcrits = this.critCount;
+            let bestfails = this.failCount;
             for(let i = 0; i < operand; i++)
             {
+                this.critCount = baseCrits;
+                this.failCount = baseFails;
+
                 this.log(`Trial ${i+2}:`);
-                let [trial] = this.parseCommand(m[1], undefined, PRECEDENCE.advantage);
+                let [trial] = this.#parseCommandRec(m[1], undefined, PRECEDENCE.advantage);
                 if(this.parseErr) return [];
                 if(trial === undefined) {
                     this.parseErr = 3; /* unexpected symbol */
                     return [];
                 }
-                best = trial > best ? trial : best;
+                if(trial > best)
+                {
+                    best = trial;
+                    bestcrits = this.critCount;
+                    bestfails = this.failCount;
+                }
             }
 
+            this.critCount = bestcrits;
+            this.failCount = bestfails;
+
             this.log('Result with advantage: ' + best);
-            return tail ? this.parseCommand(tail, best, context) : [best];
+            return tail ? this.#parseCommandRec(tail, best, context) : [best];
         }
         else if (m = code.match(/^\.(.*)$/)) /* DISADVANTAGE */
         {
@@ -242,27 +296,45 @@ export default class DiceScriptParser {
             }
             if(operand === undefined) operand = 1;
 
+            // Save the current number of crits / fails
+            const baseCrits = this.critCount;
+            const baseFails = this.failCount;
+
             this.log(`Trying with disadvantage${operand!=1?` x${operand}`:''}:`,'Trial 1:');
-            let [worst, tail] = this.parseCommand(m[1], undefined, PRECEDENCE.advantage);
+            let [worst, tail] = this.#parseCommandRec(m[1], undefined, PRECEDENCE.advantage);
             if(this.parseErr) return [];
             if(worst === undefined) {
                 this.parseErr = 3; /* unexpected symbol */
                 return [];
             }
+            // These will decide what the final count of crits / fails is
+            let worstcrits = this.critCount;
+            let worstfails = this.failCount;
             for(let i = 0; i < operand; i++)
             {
+                this.critCount = baseCrits;
+                this.failCount = baseFails;
+
                 this.log(`Trial ${i+2}:`);
-                let [trial] = this.parseCommand(m[1], undefined, PRECEDENCE.advantage);
+                let [trial] = this.#parseCommandRec(m[1], undefined, PRECEDENCE.advantage);
                 if(this.parseErr) return [];
                 if(trial === undefined) {
                     this.parseErr = 3; /* unexpected symbol */
                     return [];
                 }
-                worst = trial < worst ? trial : worst;
+                if(trial < worst)
+                {
+                    worst = trial;
+                    worstcrits = this.critCount;
+                    worstfails = this.failCount;
+                }
             }
 
+            this.critCount = worstcrits;
+            this.failCount = worstfails;
+
             this.log('Result with disadvantage: ' + worst);
-            return tail ? this.parseCommand(tail, worst, context) : [worst];
+            return tail ? this.#parseCommandRec(tail, worst, context) : [worst];
         }
         else if (m = code.match(/^\+(.*)$/)) /* ADDITION */
         {
@@ -278,7 +350,7 @@ export default class DiceScriptParser {
                 this.parseErr = 3; /* unexpected symbol */
                 return [];
             }
-            const [operand2, tail] = this.parseCommand(m[1], undefined, PRECEDENCE.addition);
+            const [operand2, tail] = this.#parseCommandRec(m[1], undefined, PRECEDENCE.addition);
             if (this.parseErr) return [];
             if (operand2 === undefined)
             {
@@ -288,7 +360,7 @@ export default class DiceScriptParser {
 
             const result = operand + operand2;
             this.log(`Adding ${operand} + ${operand2}:`, result);
-            return tail ? this.parseCommand(tail, result, context) : [result];
+            return tail ? this.#parseCommandRec(tail, result, context) : [result];
         }
         else if (m = code.match(/^\-(.*)$/)) /* SUBTRACTION/NEGATION */
         {
@@ -301,7 +373,7 @@ export default class DiceScriptParser {
                     return [operand, code];
                 }
 
-                const [operand2, tail, err] = this.parseCommand(m[1], undefined, PRECEDENCE.negation);
+                const [operand2, tail, err] = this.#parseCommandRec(m[1], undefined, PRECEDENCE.negation);
                 if (this.parseErr) return [];
                 if (operand2 === undefined)
                 {
@@ -311,7 +383,7 @@ export default class DiceScriptParser {
 
                 let result = -operand2;
                 // no log output for this one because that would be silly
-                return tail ? this.parseCommand(tail, result, context) : [result];
+                return tail ? this.#parseCommandRec(tail, result, context) : [result];
             }
             else
             {
@@ -322,7 +394,7 @@ export default class DiceScriptParser {
                     return [operand, code];
                 }
 
-                const [operand2, tail] = this.parseCommand(m[1], undefined, PRECEDENCE.addition);
+                const [operand2, tail] = this.#parseCommandRec(m[1], undefined, PRECEDENCE.addition);
                 if (this.parseErr) return [];
                 if (operand2 === undefined)
                 {
@@ -332,7 +404,7 @@ export default class DiceScriptParser {
 
                 let result = operand - operand2;
                 this.log(`Subtracting ${operand} - ${operand2}:`, result);
-                return tail ? this.parseCommand(tail, result, context) : [result];
+                return tail ? this.#parseCommandRec(tail, result, context) : [result];
             }
         }
         else if (m = code.match(/^\*(.*)$/)) /* MULTIPLICATION */
@@ -349,7 +421,7 @@ export default class DiceScriptParser {
                 this.parseErr = 3; /* unexpected symbol */
                 return [];
             }
-            const [operand2, tail] = this.parseCommand(m[1], undefined, PRECEDENCE.multiplication);
+            const [operand2, tail] = this.#parseCommandRec(m[1], undefined, PRECEDENCE.multiplication);
             if (this.parseErr) return [];
             if (operand2 === undefined)
             {
@@ -359,7 +431,7 @@ export default class DiceScriptParser {
 
             const result = operand * operand2;
             this.log(`Multiplying ${operand} * ${operand2}:`, result);
-            return tail ? this.parseCommand(tail, result, context) : [result];
+            return tail ? this.#parseCommandRec(tail, result, context) : [result];
         }
         else if (m = code.match(/^\/(.*)$/)) /* DIVISION */
         {
@@ -375,7 +447,7 @@ export default class DiceScriptParser {
                 this.parseErr = 3; /* unexpected symbol */
                 return [];
             }
-            const [operand2, tail] = this.parseCommand(m[1], undefined, PRECEDENCE.multiplication);
+            const [operand2, tail] = this.#parseCommandRec(m[1], undefined, PRECEDENCE.multiplication);
             if (this.parseErr) return [];
             if (operand2 === undefined)
             {
@@ -385,7 +457,7 @@ export default class DiceScriptParser {
 
             const result = operand / operand2;
             this.log(`Dividing ${operand} / ${operand2}:`, result);
-            return tail ? this.parseCommand(tail, result, context) : [result];
+            return tail ? this.#parseCommandRec(tail, result, context) : [result];
         }
         else /* DEFAULT */
         {

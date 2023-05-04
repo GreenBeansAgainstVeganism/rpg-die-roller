@@ -94,6 +94,7 @@ main button {
     border-image-slice: 16;
     border-image-outset: 0 4px 4px 0;
     position: relative;
+    font-size: 12pt;
     transform: translate(-4px, -4px);
     margin: 0;
     -webkit-user-select: none;
@@ -160,9 +161,10 @@ footer p {
     margin: 0;
 }
 
-@media screen and (max-width: 850px) {
-    body {
+@media screen and (max-width: 864px) {
+    /* body {
         height: 240vh;
         max-height: 240vh;
-    }
+        background-position-x: 60%;
+    } */
 }

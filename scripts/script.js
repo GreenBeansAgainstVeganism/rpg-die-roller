@@ -13,6 +13,9 @@ let log_lines = [];
 let console_history = [];
 let console_history_pos = -1;
 
+/** holds the result of the last die roll, and undefined if there was an error or no rolls have happened yet */
+let rollResult;
+
 /** list of user defined formulas that are accessible via <> references in dicescript */
 let formulas = [];
 
@@ -70,6 +73,37 @@ function dieRollerLogClear() {
     log_lines = ['~~ log cleared ~~'];
     logElement.innerText = '~~ log cleared ~~';
     logScreenElement.scrollTop = logScreenElement.scrollHeight;
+}
+
+function spawnText(message, x, y, distance = 6, duration = 3)
+{
+    const element = document.createElement('div');
+    element.innerText = message;
+    document.body.appendChild(element);
+    element.style.position = 'absolute';
+    element.style.textAlign = 'center';
+    element.style.fontSize = '20pt';
+    element.style.color = 'black';
+    element.style.pointerEvents = 'none';
+    element.style.pointerEvents = 'none';
+    element.style.left = x + 'px';
+    element.style.top = y + 'px';
+    element.animate([
+        {
+            transform: 'translatey(0)',
+            opacity: 1
+        },
+        {
+            transform: `translatey(-${distance}rem)`,
+            opacity: 0
+        }
+    ], {
+        duration: duration*1000,
+        iterations: 1
+    })
+    // delete the element after duration ends
+    window.setTimeout(() => element.remove(), duration*1000);
+    return element;
 }
 
 /**
@@ -134,6 +168,7 @@ function addFormula(item, replace = false) {
     button.classList.add('roll-button');
     button.addEventListener('click', (ev) => {
         item.roll();
+        spawnText(rollResult === undefined ? 'ERROR' : rollResult+parser.getCritText(), ev.clientX, ev.clientY);
         ev.stopPropagation();
     });
 
@@ -271,8 +306,9 @@ function executeCommand(code) {
     switch (parser.parseErr)
     {
         case 0:
-            dieRollerLog('Result: ' + parseResult);
-            break;
+            dieRollerLog('Result: ' + parseResult + parser.getCritText());
+            rollResult = parseResult[0];
+            return;
         case 1:
             dieRollerLog('Error: Unrecognized syntax');
             break;
@@ -306,6 +342,7 @@ function executeCommand(code) {
         default:
             dieRollerLog('Unnamed Error');
     }
+    rollResult = undefined;
 }
 
 // Adding event handlers
@@ -327,7 +364,9 @@ commandElement.addEventListener('keydown', ev => {
     else if (ev.key == 'ArrowUp')
     {
         if(console_history_pos < console_history.length-1) console_history_pos++;
-        if(console_history_pos > -1) commandElement.value = console_history[console_history_pos];
+        if(console_history_pos > -1) {
+            commandElement.value = console_history[console_history_pos];
+        }
         ev.stopPropagation();
     }
     else if (ev.key == 'ArrowDown')
@@ -352,6 +391,11 @@ document.addEventListener('keydown', ev => {
 
 /** Event handler for saving formulas */
 const handleSaveFormula = function () {
+    if(!formulaNameInput.value.match(/^[^\[\]]+$/))
+    {
+        window.alert('Your formula name cannot contain square bracket characters: [ ]\nNo changes were saved');
+        return;
+    }
     deleteFormula(formulaSelection);
     addFormula(new dsFormula(formulaNameInput.value, formulaCategoryInput.value, formulaCommandInput.value));
     selectFormula(formulaNameInput.value);
