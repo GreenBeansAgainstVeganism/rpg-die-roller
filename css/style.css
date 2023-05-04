@@ -88,6 +88,7 @@ main > div {
 
 main button {
     background-color: white;
+    color: black;
     -o-border-image: url('../assets/button_border.png');
        border-image: url('../assets/button_border.png');
     border-image-width: 4px;

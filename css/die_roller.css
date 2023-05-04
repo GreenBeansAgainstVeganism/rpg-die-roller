@@ -91,6 +91,10 @@
     border-bottom: 1px solid gray;
 }
 
+#formula-table tbody tr:first-child {
+    border-top: 1px solid gray;
+}
+
 #formula-table tbody tr:nth-child(2n) {
     background-color: #b1d1cc;
 }
@@ -250,7 +254,7 @@
 @media screen and (max-width: 864px) {
     #die-roller-tab {
         grid-template-columns: auto;
-        grid-template-rows: 100% 16rem 100%;
+        grid-template-rows: max(100%, 12rem) 16rem max(100%, 12rem);
         overflow-y: scroll;
     }
 
