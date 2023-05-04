@@ -75,34 +75,32 @@ function dieRollerLogClear() {
     logScreenElement.scrollTop = logScreenElement.scrollHeight;
 }
 
-function spawnText(message, x, y, distance = 6, duration = 3)
+function spawnText(message, x, y, distance = 5, duration = 2.5)
 {
     const element = document.createElement('div');
     element.innerText = message;
     document.body.appendChild(element);
-    element.style.position = 'absolute';
-    element.style.textAlign = 'center';
-    element.style.fontSize = '20pt';
-    element.style.color = 'black';
-    element.style.pointerEvents = 'none';
-    element.style.pointerEvents = 'none';
+    element.classList.add('splash');
     element.style.left = x + 'px';
-    element.style.top = y + 'px';
+    element.style.top = y - 40 + 'px';
     element.animate([
         {
-            transform: 'translatey(0)',
-            opacity: 1
+            transform: 'translate(-50%, 0)',
+            opacity: 1,
+            easing: 'cubic-bezier(0.2,0.8,0.2,0.8)'
         },
         {
-            transform: `translatey(-${distance}rem)`,
+            transform: `translate(-50%, -${distance}rem)`,
             opacity: 0
         }
     ], {
-        duration: duration*1000,
+        duration: duration*1000+1, /* needs to be 1 ms longer than the timeout duration to avoid blipping */
         iterations: 1
     })
     // delete the element after duration ends
-    window.setTimeout(() => element.remove(), duration*1000);
+    window.setTimeout(() => {
+        element.remove();
+    }, duration*1000);
     return element;
 }
 
@@ -168,7 +166,10 @@ function addFormula(item, replace = false) {
     button.classList.add('roll-button');
     button.addEventListener('click', (ev) => {
         item.roll();
-        spawnText(rollResult === undefined ? 'ERROR' : rollResult+parser.getCritText(), ev.clientX, ev.clientY);
+        spawnText(
+            rollResult === undefined ? 'ERROR' : rollResult+parser.getCritText(),
+            ev.clientX + Math.random()*16,
+            ev.clientY + Math.random()*16);
         ev.stopPropagation();
     });
 
@@ -180,9 +181,10 @@ function addFormula(item, replace = false) {
 /**
  * Removes the formula with a given name from both the internal table and the UI. (removes multiple if there are duplicate names)
  * @param {String} name The name of the formula to remove
+ * @returns the index in the table of the formula deleted.
  */
 function deleteFormula(name) {
-    let x;
+    let x, index;
     while ((x = formulas.findIndex(y => y.name == name)) >= 0)
     {
         formulas.splice(x, 1);
@@ -192,8 +194,37 @@ function deleteFormula(name) {
         if (formulaTableElement.children[x].dataset.formulaName == name)
         {
             formulaTableElement.children[x].remove();
+            index = x;
         }
         else x++;
+    }
+    return index;
+}
+
+/**
+ * Swaps an element in the formula table with the element directly proceeding it.
+ * @param {Number} a The index of the first element to swap
+ */
+function swapFormula(a) {
+    const x = formulaTableElement.children[a]
+    x.before(x.nextElementSibling);
+}
+
+/**
+ * Shifts an element in the formula table up or down until it resides at a particular index.
+ * @param {String} name The name of the element to move
+ * @param {Number} loc The index to move the element to
+ */
+function shiftFormula(name, loc) {
+    console.log('shifting formula to '+loc);
+    let n = [...formulaTableElement.children].findIndex(x => x.dataset.formulaName == name);
+    while(n < loc) {
+        swapFormula(n);
+        n++;
+    }
+    while(n > loc) {
+        n--;
+        swapFormula(n);
     }
 }
 
@@ -396,9 +427,16 @@ const handleSaveFormula = function () {
         window.alert('Your formula name cannot contain square bracket characters: [ ]\nNo changes were saved');
         return;
     }
-    deleteFormula(formulaSelection);
+    // Delete the previous formula and save its table index
+    const index = deleteFormula(formulaSelection);
+    // Add new formula with new data
     addFormula(new dsFormula(formulaNameInput.value, formulaCategoryInput.value, formulaCommandInput.value));
+    // Select the new formula
     selectFormula(formulaNameInput.value);
+    // Shift the new formula to the old one's position
+    if(index != undefined) shiftFormula(formulaSelection, index);
+    // scroll the table element to make sure the formula is in view
+    formulaTableElement.children[index].scrollIntoView();
 }
 
 formulaSaveElement.addEventListener('click', handleSaveFormula);
@@ -449,6 +487,7 @@ const handleNewFormula = function () {
     }
     addFormula(new dsFormula(name, 'Misc', '1d6'));
     selectFormula(name);
+    [...formulaTableElement.children].find(x => x.dataset.formulaName == name).scrollIntoView();
     formulaNameInput.focus();
 }
 

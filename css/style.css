@@ -15,6 +15,15 @@ body {
     font-family: 'Labrada', Georgia, 'Times New Roman', Times, serif;
 }
 
+.splash {
+    position: absolute;
+    text-align: center;
+    font-size: 22pt;
+    color: black;
+    pointer-events: none;
+    text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white;
+}
+
 button {
     cursor: pointer;
 }
@@ -119,6 +128,7 @@ main button:active {
 main button:disabled {
     -webkit-filter: grayscale();
             filter: grayscale();
+    color: gray;
     box-shadow: none;
     background-color: white;
     border-image-source: url('../assets/button_border.png');
