@@ -250,7 +250,7 @@
 @media screen and (max-width: 864px) {
     #die-roller-tab {
         grid-template-columns: auto;
-        grid-template-rows: 100% 60% 100%;
+        grid-template-rows: 100% 16rem 100%;
         overflow-y: scroll;
     }
 
