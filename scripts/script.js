@@ -49,10 +49,12 @@ const tabButtons = document.querySelectorAll('nav button');
  * @param {Number} index The number tab to change to
  */
 function changeTab (index) {
+    tabButtons.item(currentTab).classList.remove('selected');
     currentTab = index;
     [...mainElement.children].forEach((child, i) => {
         child.style.left = `calc(-${index*2}rem - ${index}00%)`; // I hate this solution but it works
     });
+    tabButtons.item(index).classList.add('selected');
 }
 
 /**
@@ -216,7 +218,6 @@ function swapFormula(a) {
  * @param {Number} loc The index to move the element to
  */
 function shiftFormula(name, loc) {
-    console.log('shifting formula to '+loc);
     let n = [...formulaTableElement.children].findIndex(x => x.dataset.formulaName == name);
     while(n < loc) {
         swapFormula(n);

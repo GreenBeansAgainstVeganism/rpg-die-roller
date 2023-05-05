@@ -26,6 +26,10 @@ export default class DiceScriptParser {
         this.table = formulaTable;
     }
 
+    /**
+     * Reads the parser's critCount and failCount flags and constructs a String describing the number of crits and crit fails.
+     * @returns {String} text describing the crits and crit fails from the most recent roll.
+     */
     getCritText() {
         let result = '';
         if(this.critCount)
