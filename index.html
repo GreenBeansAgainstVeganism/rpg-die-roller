@@ -8,10 +8,12 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Labrada">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/die_roller.css">
+    <link rel="stylesheet" href="css/profiles.css">
     <link rel="stylesheet" href="css/help.css">
     <link rel="shortcut icon" href="./assets/favicon.png" type="image/x-icon">
     <script type="module" src="scripts/script.js"></script>
     <script type="module" src="scripts/parser.js"></script>
+    <script type="module" src="scripts/profile_templates.js"></script>
     <title>The Ultimate RPG Die Roller</title>
 </head>
 
@@ -102,7 +104,29 @@
             </div>
         </div>
         <div id="profile-tab">
-            Work in Progress &#x1FAE2;
+            <h2>Profiles:</h2>
+            <p>
+                Here you can export your current setup to a text file so you can save it for later or share it with friends. This includes all of your formulas as well as their order, but does not include your console log or history.
+            </p>
+            <div id="profile-controls">
+                <button id="profile-export">Export To Text File</button>
+                <button id="profile-import">Import From Text File</button>
+            </div>
+            <table id="profile-table">
+                <caption>
+                    Demo Profiles:
+                </caption>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Load</th>
+                    </tr>
+                </thead>
+                <tbody id="profile-template-rows">
+                    
+                </tbody>
+            </table>
         </div>
         <div id="help-tab">
             <h2>About this project:</h2>
@@ -305,6 +329,26 @@ Result: 8</p>
             Sage Cook | Icons by Febrian Hidayat
         </p>
     </footer>
+    <div id="dialogs">
+        <dialog id="export-dialog">
+            <h3>Exported data:</h3>
+            <textarea name="export-text" id="export-text" cols="30" rows="10" readonly></textarea>
+            <div id="export-controls">
+                <button id="export-copy">Copy</button>
+                <button id="export-save">Save Text File</button>
+                <button id="export-done">Done</button>
+            </div>
+        </dialog>
+        <dialog id="import-dialog">
+            <h3>Paste data here:</h3>
+            <textarea name="import-text" id="import-text" cols="30" rows="10"></textarea>
+            <div id="import-controls">
+                <button id="import-confirm">Import</button>
+                <button id="import-file">Import From File</button>
+                <button id="import-cancel">Cancel</button>
+            </div>
+        </dialog>
+    </div>
 </body>
 
 </html>

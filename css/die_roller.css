@@ -63,7 +63,6 @@
 #formula-table tr {
     width: 100%;
     display: grid;
-    grid-column: 1 / 5;
     grid-template-columns: 2rem 1fr 1fr 1fr 6rem;
     grid-auto-flow: column;
     grid-auto-columns: 1fr;

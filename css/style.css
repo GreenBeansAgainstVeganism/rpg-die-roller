@@ -16,7 +16,7 @@ body {
 }
 
 .splash {
-    position: absolute;
+    position: fixed;
     text-align: center;
     font-size: 22pt;
     color: black;
@@ -26,6 +26,7 @@ body {
 
 button {
     cursor: pointer;
+    outline: none;
 }
 
 header {
@@ -87,7 +88,7 @@ main {
     display: grid;
     grid-auto-flow: column;
     grid-auto-columns: 100%;
-    overflow: hidden;
+    overflow: clip;
     gap: 2rem;
     padding: 1rem;
     position: relative;
@@ -121,7 +122,7 @@ main button {
             user-select: none;
 }
 
-main button:hover {
+main button:hover, main button:focus {
     border-image-source: url('../assets/button_border_highlight.png');
     box-shadow: 4px 4px 6px #ffd580;
     background-color: #ffeac1;
@@ -170,6 +171,40 @@ input:disabled, select:disabled {
 
 input:disabled::-webkit-input-placeholder {
     visibility: hidden;
+}
+
+dialog {
+    /* position: fixed;
+    top: 50%;
+    left: 50%;
+    margin: 0;
+    transform: translate(-50%, -50%); */
+    border: none;
+    border-radius: 0.5rem;
+    background-color: black;
+    box-shadow: 0 0 0.5rem #ffd580;
+    color: white;
+}
+
+dialog button {
+    background-color: transparent;
+    transform: none;
+    border: none;
+    color: inherit;
+    padding-inline: 1rem;
+    padding-block: 0.5rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s;
+}
+dialog button:hover {
+    color: inherit;
+    box-shadow: none;
+    background-color: #ffffff44;
+}
+dialog button:active {
+    color: inherit;
+    border: none;
+    background-color: #ffffff88;
 }
 
 footer {

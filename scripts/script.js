@@ -1,4 +1,5 @@
 import Parser from './parser.js';
+import profileTemplates from './profile_templates.js';
 
 const LOGHISTORYLENGTH = 100;
 const CONSOLEHISTORYLENGTH = 50;
@@ -42,7 +43,19 @@ const formulaNewElement = document.getElementById('formula-new');
 const formulaClearElement = document.getElementById('formula-clear');
 const mainElement = document.querySelector('main');
 const tabButtons = document.querySelectorAll('nav button');
-
+const profileExport = document.getElementById('profile-export');
+const profileImport = document.getElementById('profile-import');
+const exportDialog = document.getElementById('export-dialog');
+const importDialog = document.getElementById('import-dialog');
+const exportCopy = document.getElementById('export-copy');
+const exportSave = document.getElementById('export-save');
+const exportDone = document.getElementById('export-done');
+const importConfirm = document.getElementById('import-confirm');
+const importFile = document.getElementById('import-file');
+const importCancel = document.getElementById('import-cancel');
+const exportText = document.getElementById('export-text');
+const importText = document.getElementById('import-text');
+const profileTemplateRows = document.getElementById('profile-template-rows');
 
 /**
  * Changes what tab is currently visible in the main element.
@@ -77,12 +90,22 @@ function dieRollerLogClear() {
     logScreenElement.scrollTop = logScreenElement.scrollHeight;
 }
 
-function spawnText(message, x, y, distance = 5, duration = 2.5)
+/**
+ * Generates a splash text element.
+ * @param {String} message text to display
+ * @param {Number} x x coordinate on the screen
+ * @param {Number} y y coordinate on the screen
+ * @param {Object} options... set the distance, duration, class, and parent of the element. Parent must be specified for
+ * text inside dialog boxes because otherwise the text will render behind the dialog and be invisible.
+ * @returns a reference to the generated element.
+ */
+function spawnText(message, x, y, {distance = 5, duration = 2.5, bonusClass, parent = document.body} = {})
 {
     const element = document.createElement('div');
     element.innerText = message;
-    document.body.appendChild(element);
+    parent.appendChild(element);
     element.classList.add('splash');
+    if(bonusClass) element.classList.add(bonusClass);
     element.style.left = x + 'px';
     element.style.top = y - 40 + 'px';
     element.animate([
@@ -170,8 +193,8 @@ function addFormula(item, replace = false) {
         item.roll();
         spawnText(
             rollResult === undefined ? 'ERROR' : rollResult+parser.getCritText(),
-            ev.clientX + Math.random()*16,
-            ev.clientY + Math.random()*16);
+            ev.x + Math.random()*16,
+            ev.y + Math.random()*16);
         ev.stopPropagation();
     });
 
@@ -200,6 +223,7 @@ function deleteFormula(name) {
         }
         else x++;
     }
+    console.log(formulas);
     return index;
 }
 
@@ -291,6 +315,14 @@ function deselectFormula() {
     formulaCommandInput.value = '';
 }
 
+/**
+ * Deletes all formulas
+ */
+function clearFormulas() {
+    formulas.splice(0);
+    [...formulaTableElement.children].forEach(child => child.remove());
+    deselectFormula();
+}
 
 /**
  * Sort the rows of the formula table.
@@ -314,6 +346,32 @@ const sortByCategory = (row1, row2) => {
 const sortByCategoryName = (row1, row2) => {
     const s = sortByCategory(row1,row2);
     return s === 0 ? sortByName(row1,row2) : s;
+}
+
+/**
+ * Loads the data from a profile object
+ * @param {Object} profile a list of objects containing formula data
+ * 
+ * @returns {Boolean} whether the load was successful or not.
+ */
+function loadProfile (profile) {
+    // Edge case where profile is empty
+    if(profile.length == 0)
+    {
+        clearFormulas();
+        return true;
+    }
+
+    // Return false if there's an error with the json structure
+    if(!profile.reduce(
+        (flag, obj) => flag && typeof(obj) == "object" && obj.name && obj.category && obj.code)) return false;
+    
+    // Clear existing formulas
+    clearFormulas();
+
+    // for each object in the profile data, convert to a dsFormula and add it
+    profile.forEach(obj => addFormula(new dsFormula(obj.name, obj.category, obj.code)));
+    return true;
 }
 
 const parser = new Parser(dieRollerLog, formulas);
@@ -497,11 +555,104 @@ formulaNewElement.addEventListener('click', handleNewFormula);
 const handleClearFormulas = function () {
     if(!window.confirm(`Are you sure you want to clear all formulas? (This action is not reversible.)`))
         return;
-    formulas = [];
-    [...formulaTableElement.children].forEach(child => child.remove());
+    clearFormulas();
 }
 
 formulaClearElement.addEventListener('click', handleClearFormulas);
+
+// Profile control events
+
+const handleOpenExportDialog = function () {
+    let fOrdered = [...formulaTableElement.children]
+        .map(t => formulas.find(f => f.name == t.dataset.formulaName));
+    exportText.value = JSON.stringify(fOrdered);
+    exportDialog.showModal();
+}
+profileExport.addEventListener('click', handleOpenExportDialog);
+
+const handleOpenImportDialog = function () {
+    importDialog.showModal();
+}
+profileImport.addEventListener('click', handleOpenImportDialog);
+
+exportDone.addEventListener('click',() => exportDialog.close());
+importCancel.addEventListener('click',() => importDialog.close());
+
+const handleExportCopy = function (ev) {
+    navigator.clipboard.writeText(exportText.value);
+    exportText.focus();
+    exportText.select();
+    spawnText(
+        'Copied!',
+        ev.x + Math.random()*16,
+        ev.y + Math.random()*16,
+        {parent: exportDialog});
+}
+exportCopy.addEventListener('click', handleExportCopy);
+
+const handleExportSave = function (ev) {
+    // To do this, we need to simulate clicking an anchor element
+    let link = document.createElement('a');
+
+    // Set the anchor to link to a file download with the data
+    link.setAttribute('href', 'data:text/plain;charset=utf-8,'+encodeURIComponent(exportText.value));
+    link.setAttribute('download', 'profile.txt');
+
+    // Simulate the click
+    link.click();
+}
+exportSave.addEventListener('click', handleExportSave);
+
+
+const handleImportText = function (ev) {
+    let parsed;
+    try {
+        parsed = JSON.parse(importText.value);
+    }
+    catch (ex) {
+        window.alert("There was an issue with reading the data.");
+        return;
+    }
+    
+    if(loadProfile(parsed)) {
+        spawnText(
+            'Data Loaded Successfully!',
+            ev.x + Math.random()*16,
+            ev.y + Math.random()*16,
+            {parent: importDialog});
+    }
+    else {
+        window.alert("There was an issue with reading the data.");
+    }
+
+}
+importConfirm.addEventListener('click', handleImportText);
+
+const handleImportFile = function (ev) {
+    // To get this to work, we need to simulate a click on a file input element
+    const input = document.createElement('input');
+    input.type = 'file';
+
+    // Set up what to do with the file when it is chosen
+    input.onchange = e => {
+        // Get the file, create a new FileReader
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.readAsText(file,'UTF-8');
+        // This method will trigger once the FileReader has finished reading
+        reader.onload = readerEvent => {
+            // Get the file content, put it into the import text area and
+            // let the other event handler take care of the rest
+            const content = readerEvent.target.result;
+            importText.value = content;
+            handleImportText(ev);
+        }
+    }
+
+    // Simulate the click
+    input.click();
+}
+importFile.addEventListener('click', handleImportFile);
 
 // global key events
 document.addEventListener('keydown', ev => {
@@ -516,13 +667,25 @@ document.addEventListener('keydown', ev => {
     }
 })
 
+// Load profile templates into table
+profileTemplates.forEach(template => {
+    const row = document.createElement('tr');
+    row.innerHTML = `<td>${template.name}</td>
+        <td>${template.desc}</td>
+        <td><button>Load</button></td>`;
+    const handleLoad = ev => {
+        loadProfile(template.data);
+        spawnText('Profile Loaded!',
+            ev.x + Math.random()*16,
+            ev.y + Math.random()*16);
+    }
+    row.querySelector('button').addEventListener('click', handleLoad);
+
+    profileTemplateRows.appendChild(row);
+})
+
 // Preloaded formulas
-addFormula(new dsFormula('20-sided die', 'Misc', 'D20'));
-addFormula(new dsFormula('10-sided die', 'Misc', 'd10'));
-addFormula(new dsFormula('8-sided die', 'Misc', 'd8'));
-addFormula(new dsFormula('6-sided die', 'Misc', 'd6'));
-addFormula(new dsFormula('4-sided die', 'Misc', 'd4'));
-addFormula(new dsFormula('100-sided die', 'Misc', 'd100'));
+loadProfile(profileTemplates[0].data);
 deselectFormula();
 
 
