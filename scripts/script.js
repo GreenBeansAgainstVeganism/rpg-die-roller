@@ -603,8 +603,11 @@ const handleExportSave = function (ev) {
 }
 exportSave.addEventListener('click', handleExportSave);
 
-
-const handleImportText = function (ev) {
+/**
+ * Shared code for both import handlers
+ * @param {Event} ev the event
+ */
+const handleImport = function (ev) {
     let parsed;
     try {
         parsed = JSON.parse(importText.value);
@@ -624,14 +627,20 @@ const handleImportText = function (ev) {
     else {
         window.alert("There was an issue with reading the data.");
     }
+}
 
+const handleImportText = function (ev) {
+    if(window.confirm("This will overwrite your current data. You may wish to save your data by exporting it first. Are you sure you want to continue?")) handleImport(ev);
 }
 importConfirm.addEventListener('click', handleImportText);
 
 const handleImportFile = function (ev) {
+    // Confirmation message
+    if(!window.confirm("This will overwrite your current data. You may wish to save your data by exporting it first. Are you sure you want to continue?")) return;
     // To get this to work, we need to simulate a click on a file input element
     const input = document.createElement('input');
     input.type = 'file';
+    input.accept = 'text/plain';
 
     // Set up what to do with the file when it is chosen
     input.onchange = e => {
@@ -645,7 +654,7 @@ const handleImportFile = function (ev) {
             // let the other event handler take care of the rest
             const content = readerEvent.target.result;
             importText.value = content;
-            handleImportText(ev);
+            handleImport(ev);
         }
     }
 
@@ -667,6 +676,14 @@ document.addEventListener('keydown', ev => {
     }
 })
 
+// Save data before page is closed
+const handleSaveData = function (ev) {
+    const fOrdered = [...formulaTableElement.children]
+        .map(t => formulas.find(f => f.name == t.dataset.formulaName));
+    localStorage.setItem("formulas", JSON.stringify(fOrdered));
+}
+document.addEventListener('visibilitychange', handleSaveData);
+
 // Load profile templates into table
 profileTemplates.forEach(template => {
     const row = document.createElement('tr');
@@ -685,7 +702,15 @@ profileTemplates.forEach(template => {
 })
 
 // Preloaded formulas
-loadProfile(profileTemplates[0].data);
+const savedformulas = localStorage.getItem("formulas");
+if(savedformulas == null)
+{
+    loadProfile(profileTemplates[0].data);
+}
+else
+{
+    loadProfile(JSON.parse(savedformulas));
+}
 deselectFormula();
 
 

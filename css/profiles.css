@@ -8,9 +8,15 @@
 
 #profile-controls {
     display: flex;
-    justify-content: center;
+    flex-wrap: wrap;
+    width: fit-content;
+    margin-inline: auto;
     margin-block: 4rem;
     height: 2.4rem;
+}
+
+#profile-controls > * {
+    flex-grow: 1;
 }
 
 /* Dialogs */
