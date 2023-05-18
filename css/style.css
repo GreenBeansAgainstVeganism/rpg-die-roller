@@ -1,21 +1,14 @@
 body {
     display: flex;
     flex-flow: column nowrap;
-    max-height: 100vh;
-    height: 100vh;
+    max-height: 100dvh;
+    height: 100dvh;
     margin: 0;
     background-color: black;
     background-image: url('../assets/backdrop.webp');
     background-size: cover;
     background-position-x: center;
     color: white;
-}
-
-@supports (max-height: -webkit-fill-available) {
-    body {
-        height: -webkit-fill-available;
-        max-height: -webkit-fill-available;
-    }
 }
 
 * {
