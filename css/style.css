@@ -13,6 +13,7 @@ body {
 
 @supports (max-height: -webkit-fill-available) {
     body {
+        height: -webkit-fill-available;
         max-height: -webkit-fill-available;
     }
 }
