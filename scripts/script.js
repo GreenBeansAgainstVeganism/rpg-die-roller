@@ -702,6 +702,12 @@ profileTemplates.forEach(template => {
     profileTemplateRows.appendChild(row);
 })
 
+// Resize body element on ios because ios is dumb
+document.body.style.height = window.innerHeight+'px';
+window.addEventListener('resize', ev => {
+    document.body.style.height = window.innerHeight+'px';
+})
+
 // Preloaded formulas
 const savedformulas = localStorage.getItem("formulas");
 if(savedformulas == null)
