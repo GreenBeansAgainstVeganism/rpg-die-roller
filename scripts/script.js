@@ -24,6 +24,7 @@ let formulas = [];
 let formulaSelection;
 
 // getting all the html elements we'll need for later
+const dieRollerTab = document.getElementById('die-roller-tab');
 const logElement = document.getElementById('log-text');
 const logScreenElement = document.getElementById('log');
 const commandElement = document.getElementById('command-entry');
@@ -716,3 +717,4 @@ deselectFormula();
 
 dieRollerLog('Welcome!', 'Enter what you\'d like to roll below, or roll one of the formulas to the left:', '(Check out the help tab for more info!)');
 commandElement.focus();
+dieRollerTab.scroll(0,0);

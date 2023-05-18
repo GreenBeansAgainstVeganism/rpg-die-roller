@@ -11,6 +11,12 @@ body {
     color: white;
 }
 
+@supports (max-height: -webkit-fill-available) {
+    body {
+        max-height: -webkit-fill-available;
+    }
+}
+
 * {
     font-family: 'Labrada', Georgia, 'Times New Roman', Times, serif;
 }
